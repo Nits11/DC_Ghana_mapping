@@ -32,20 +32,29 @@ child_dat=child_dat %>%
   mutate(Micro=replace(Micro,FINALa==2,0)) %>%   #Convert negative to 0 (binary form)
   mutate(Sev_an=0) %>% 
   mutate(Sev_an=replace(Sev_an,AM8 < 7,1)) %>% 
-  mutate(Age_m=replace(Age_m,Age_m < 0,12*AG2)) %>   #for age_months missing, estimate from their years of age
-  select(HH1,HH2,Day=UF8D,Month=UF8M,Year=UF8Y,Age_year=AG2,Age_months=Age_m,fever=ML1,Health_insurance=HI1,Weight=AN3,Height=AN4,AM7,Micro,Sev_an,Hb=AM8,RDT=AM10) %>% 
+  select(HH1,HH2,Day=UF8D,Month=UF8M,Year=UF8Y,Age_year=AG2,Age_months=Age_m,fever=ML1,Health_insurance=HI1,
+         Weight=AN3,Height=AN4,AM7,Micro,Sev_an,Hb=AM8,RDT=AM10) %>% #
   inner_join(gps_dat) %>%  
   filter(!is.na(Long))
-  
+
 #there are some ages that didn't have month included. So we will take their age (in years) time 12 (for months)
-if(child_dat$Age_m < 0){12*child_dat$AG2}
-hist(child_dat$Age_m)
+child_dat=child_dat %>%
+mutate(Age_months=replace(Age_months,Age_months < 0 & !is.na(Age_months),12*Age_year))   #for age_months missing, estimate from their years of age
+hist(child_dat$Age_months)
+
 # One child needs to be manually changed to 6 months (manual mistake)
 child_dat$Age_months[which(child_dat$Age_months==0)]=6
+hist(child_dat$Age_months)
+
+#Also Hemoglobin values >25 are most likely not results convert to NA
+#ditto fever=DK should be converted to NA
+child_dat$Hb[which(child_dat$Hb>25)]=NA
+child_dat$fever[which(child_dat$fever=="DK"|child_dat$fever=="Missing")]=NA
 
 #cleaning the household data
+names(hh_dat)
 hh_dat=hh_dat %>% 
-  select(HH1, HH2, Residence=HH6, Region=HH7, District=HH7A, Sex=HL4, IRS=IR1, hhweight, ethnicity, 
+  select(HH1, HH2, Residence=HH6, Region=HH7, District=HH7A, IRS=IR1, hhweight, ethnicity, 
          H_education=helevel, Wealth_q=windex5)
 
 #join household data to child data
@@ -67,16 +76,109 @@ table(child_dat$RDT_pos, useNA = "ifany")
 ######a) demographic variable (Age, sex, wealth, head of household education, insurance, ethnicity)
 ######b) biomarker (Hemoglobin, RDT checks)
 
-#Age in months and microscopy prevalence
+#Age in months and microscopy prevalence and RDT
 ggplot(child_dat, aes(x=Age_months)) +
   stat_smooth(aes(y=RDT_pos, colour="RDT"),method = "loess",size=1.5)+
   stat_smooth(aes(y=Micro, colour="Microscopy"),method = "loess", size=1.5)+
-  scale_colour_manual("", 
-                      breaks = c("RDT", "Microscopy"),
-                      values = c("red", "blue")) +
   xlab("Age in months")+
-  ylab("Prevalence")+
-  theme_bw()
+  ylab("Probabilty of Infection")+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  labs(colour = "")
+
+#wealth by residence and prevalence
+w=child_dat %>% 
+  select(Wealth_q, Micro, Residence) %>% 
+  mutate(Malaria="Yes") %>% 
+  mutate(Malaria=replace(Malaria,Micro==0,"No"))
+w$Malaria=as.factor(w$Malaria)
+
+ggplot(w, aes(x=Wealth_q))+
+  geom_bar(aes(fill=Malaria))+
+  facet_wrap(~ Residence)+
+  #Format axes
+  scale_x_continuous(breaks = c(1, 2, 3, 4, 5), labels = c("Poorest", "Poorer", "Middle", "Richer", "Richest")) + 
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Malaria infection", values = c("#fc8d59", "#91bfdb")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  # Legend formatting
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+  
+  #Facets formatting
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+
+
+#wealth and education
+ggplot(child_dat, aes(x=Wealth_q))+
+  geom_bar(aes(fill=H_education))+
+  #Format axes
+  scale_x_continuous(breaks = c(1, 2, 3, 4, 5), labels = c("Poorest", "Poorer", "Middle", "Richer", "Richest")) + 
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Highest Education", values = c("darksalmon", "mediumorchid2", "darkturquoise", "chartreuse4")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  # Legend formatting
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+  
+  #Facets formatting
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+
+#malaria and hemoglobin
+ggplot(child_dat, aes(x=as.factor(Micro),y=Hb))+
+  geom_boxplot()+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  scale_x_discrete(name="Malaria infection",breaks = c(0,1), labels = c("No", "Yes")) +
+  scale_y_continuous(name = "Hemoglobin level (g/dL)")
+
+####################GIS DATA####################
+MICS_mal=child_dat %>% 
+  group_by(HH1) %>% 
+  summarise(Malaria=mean(Micro)*100, RDT=mean(RDT_pos)*100, Long=mean(Long), Lat=mean(Lat))
+write.csv(MICS_mal,"Data/GIS/MICS_mal.csv", row.names = F)
+
+
+
+#Visualise Map of points by prevalence
+library(ggmap)
+world_map <- map_data("world")
+Ghana <- subset(world_map, world_map$region=="Ghana")
+
+ggplot() + coord_fixed() +
+  xlab("") + ylab("")+ 
+  #Make base plot
+  geom_polygon(data=Ghana, aes(x=long, y=lat, group=group), 
+                                     colour="black", fill="white")+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+       panel.background = element_rect(fill = 'white', colour = 'white'), 
+       axis.line = element_line(colour = "white"), legend.position="left",
+       axis.ticks=element_blank(), axis.text.x=element_blank(),
+       axis.text.y=element_blank())+
+#adding the prevalence points
+  geom_point(data=MICS_mal, 
+             aes(x=Long, y=Lat, colour=Malaria, size=Malaria), alpha=0.4)+ 
+  scale_colour_gradient(name = "Malaria Prevalence (%)",high = "red", low = "Yellow")+
+    scale_size_continuous(name = "Malaria Prevalence (%)", range = c(1,5))+
+  guides(color=guide_legend(), size = guide_legend())
 
 #######################################################################################
 ########################          DHS 2014          ##################################
@@ -101,5 +203,10 @@ DHS$RDT <- ifelse(DHS$hml35=="negative",0,ifelse(DHS$hml35=="positive",1,NA))
 table(DHS$micro)
 table(DHS$RDT)  #check these look the same just binary now as original data
 
+
+
 #aggregate to cluster level results
 mal=aggregate(cbind(micro,RDT)~hv001,data=DHS,mean)
+
+#Add GPS coordinate data to it
+
