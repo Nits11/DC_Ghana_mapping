@@ -28,9 +28,9 @@ Open Script labeled Data_cleaning.r
 
 1. This script first will take you through MICS 2011.
 
-*Data cleaning
-	* Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
-	* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
+	I. Data cleaning
+		*Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
+		*Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
 	* the data is then attached to gps data for further analysis.
 	* Lastly, important variables such as age, microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
 	
@@ -43,7 +43,7 @@ Open Script labeled Data_cleaning.r
 *GIS Analysis
 In GIS analysis the main aim was to plot the point prevalence of MICS 2011 to see the general geographic layout of prevalence across the country in 2011.
 
-The script then goes through the section for DHS 2014:
+2. The script then goes through the section for DHS 2014:
 
 *Data cleaning
 	* Importing of all datasets (includes Household members, individual child and gps data).
