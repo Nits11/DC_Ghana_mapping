@@ -5,6 +5,7 @@ Although there have been large efforts to map the malaria risk and its distribut
 My aim is to combine different large-scale datasets in an innovative geospatial models to create improved risk maps with greater accuracy. The integration of databases allows for higher spatial resolution providing less uncertainty in prediction estimates. Currently the most recent large-scale datasets available are the Demographic Health Survey(Ghana Statistical Service & Ghana Demographic Health Survery, 2014) and Multiple Indicator Cluster Survey by UNICEF (“UNICEF: Multiple Indicator Cluster Surveys: Available reports/datasets. [http://www.childinfo.org/mics{_}available.html],” n.d.).  However, given the difference in collection methods, these data will have to be carefully processed and weighted in order to reduce collection bias for further modelling purposes. Other datasets that would be required would be the extraction of spatial rasters that can be linked to survey clusters for the geospatial models. These would be sourced from open GIS sources such as worldclim, NASA, NOAA etc.
 
 Reference:
+
 1. Gething, P. W., Patil, A. P., Smith, D. L., Guerra, C. A., Elyazar, I. R. F., Johnston, G. L., … Hay, S. I. (2011). A new world malaria map: Plasmodium falciparum endemicity in 2010. Malaria Journal, 10, 378. doi:10.1186/1475-2875-10-378
 2. Ghana Statistical Service, & Ghana Demographic Health Survery. (2014). Ghana Demographic and Health Survey 2014: Ghana Statistical Service, Ghana Health Service, Ghana AIDS Commission. DHS. Retrieved from https://dhsprogram.com/publications/publication-FR307-DHS-Final-Reports.cfmf
 3. PMI. (2015). President’s Malaria Initiative Ghana Malaria Operational Plan FY 2015. Retrieved from http://www.pmi.gov/docs/default-source/default-document-library/malaria-operational-plans/fy-15/fy-2015-ghana-malaria-operational-plan.pdf?sfvrsn=3
@@ -16,10 +17,10 @@ Given the difficulty with automating the downloading of remote sensed imagery fr
 ##What is available:
 Data from MICS and DHS have been imported and stored in data files in an Project file. with file path:
 
-	i. **for MICS _(Data/Original/MICS/mics4 datasets)_** 
-	ii. **for DHS _(Data/Original/DHS)_**
+	i. for MICS (Data/Original/MICS/mics4 datasets) 
+	ii. for DHS (Data/Original/DHS)
 	
-      this data includes, household data, child data, laboratory data (for MICS) and gps data. All 	original file names have been kept incase of new versions (new version expected to be released for DHS in January). Data has been cleaned and ready for analysis. As part of data cleaning some exploratory analysis was conducted for MICS and DHS separately (see sections names exploratory analysis and GIS analysis) 
+   this data includes, household data, child data, laboratory data (for MICS) and gps data. All original file names have been kept incase of new versions (new version expected to be released for DHS in January). Data has been cleaned and ready for analysis. As part of data cleaning some exploratory analysis was conducted for MICS and DHS separately (see sections names exploratory analysis and GIS analysis) 
 
 GIS cleaning for MICS 2011: allows for importing raster layers and cropping, re-projecting and aligning (by extent) for data extraction. A final dataset ready for geospatial modeling for MICS 2011 has been made (found in folder named Data/Final_for_analysis).
 
@@ -64,7 +65,9 @@ A short exploratory analysis and GIS analysis for each dataset (please see attac
  
 
 **Open Script labeled GIS data cleaning.r**
-	This script is mainly to clean raster layers, by means of cropping, aligning extents and re-projecting. Note that only 2011 variables have been collected so far. This is owing to a set back with automating the process of downloading MODIS tiles.
+
+1. This script is mainly to clean raster layers, by means of cropping, aligning extents and re-projecting. Note that only 2011 variables have been collected so far. This is owing to a set back with automating the process of downloading MODIS tiles.
+	
 	* Import all un-processed rasters. These are directly taken from web sources such as MODIS, VIIRS etc.
 	* Import shape file for Ghana (used for cropping)
 	* Send all rasters through a for loop that crops, aligns and reprojects them all to the same coordinate system (a template raster is used). The projection is WGS1984 in Long and Lat format. The for loop exports the rasters to a file that stores all cleaned rasters (NOTE: this for loop takes a while, It has been pre-run for you to observe results).
