@@ -86,4 +86,4 @@ These include:
 
 NOTE: these are not for sharing and have been produced by the AgroClimate team at University of Florida, Department of Agriculture and Biological Engineering. However, I have included them educationally and incase the scripts seem interesting to those invited to this gitHub.
 
-NOTE: be sure to change all file directories appropriately for it to work. The connection can be annoying and so far has not been able to download more than two tiles at a time.
+NOTE: be sure to change all file directories appropriately for it to work. The connection can be annoying and so far has not been able to download more than two tiles at a time. Also for these scripts to work you will need to download the [*MRT Tool*](https://lpdaac.usgs.gov/tools/modis_reprojection_tool)
