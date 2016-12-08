@@ -1,0 +1,41 @@
+{
+	"modis": {
+		"wd": "~/Documents/ModisDownload",
+		"mrt": {
+			"path": "~/Downloads/MRT_download_Mactel/MRT_Mactel/bin",
+			"dataDir": "~/Downloads/MRT_download_Mactel/MRT_Mactel/data"
+		},
+		"download": [{
+			"place": "Ghana",
+            "version" : "006",
+			"destination": "~/Documents/ModisDownload/MODIS",
+			"product": 1,
+            "satellite" : "MOD",
+            "description" : "TERRA",
+            "geoid" : "PY",
+			"horizontalTileNumber": [17, 18],
+			"verticalTileNumber": [7, 8],
+			"ul": [-3.25542, 11.1733], 
+			"lr": [1.19178, 4.73672],
+            "bandsSubset" : "1 1 0 0 0 0 0 0 0 0 1 0",
+            "pixelSize" : 0.0025
+		}
+        ,
+        {
+          "place": "Ghana",
+            "version" : "006",
+        "destination": "~/Documents/ModisDownload/MODIS",
+        "product": 52,
+            "satellite" : "MYD",
+            "description" : "AQUA",
+            "geoid" : "PY",
+ 			"horizontalTileNumber": [17, 18],
+			"verticalTileNumber": [7, 8],
+			"ul": [-3.25542, 11.1733], 
+			"lr": [1.19178, 4.73672],
+			      "bandsSubset" : "1 1 0 0 0 0 0 0 0 0 1 0",
+            "pixelSize" : 0.0025
+        }
+        ]
+	}
+}
