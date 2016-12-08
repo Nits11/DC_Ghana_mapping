@@ -74,3 +74,16 @@ A short exploratory analysis and GIS analysis for each dataset (please see attac
 the rasters are stacked and plotted to visualize the stack.
 	* finally the MICS data with gps coordinates are brought in, converted to a shape file and the raster values are extracted for each location.
 	* For analysis, the data must be standardized, they are scaled and exported as a .csv file to a final folder that contained ready to use .csv files for use in the geopspatial models.
+
+##MODIS Downloading scripts
+These include:
+
+1. mainDownload.R (run first)
+2. modisDownload.R (has all the functions)
+3. modisDownload.json (includes file directories and tile + product information for downloading)
+4. ModisLP.Rdata (empty Rdata for storing temporary information)
+5. agroclimate.netrc (login and password file - make sure to input your own!)
+
+NOTE: these are not for sharing and have been produced by the AgroClimate team at University of Florida, Department of Agriculture and Biological Engineering. However, I have included them educationally and incase the scripts seem interesting to those invited to this gitHub.
+
+NOTE: be sure to change all file directories appropriately for it to work. The connection can be annoying and so far has not been able to download more than two tiles at a time.
