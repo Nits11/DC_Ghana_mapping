@@ -15,6 +15,9 @@ Reference:
 Given the difficulty with automating the downloading of remote sensed imagery from MODIS, only data cleaning and exploratory analysis has been conducted. These are important steps mainly to try an understand the data. The datasets are different in terms of their collection and how they code their variables. The most important variables in our case is Microscopy results for malaria. RDT results have also been captured for potential future work. Other response variables also considered are Hemoglobin, fever and malaria based severe Anaemia (defined by WHO as hemoglobin below 7.0 g/dL).
 
 ##What is available:
+NOTE: Data is too large to upload onto gitHub and so the Rproject will be directly sent to you.
+It has been zipped and will need unzipping.
+
 Data from MICS and DHS have been imported and stored in data files in an Project file. with file path:
 
 	i. for MICS (Data/Original/MICS/mics4 datasets) 
