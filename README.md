@@ -26,7 +26,7 @@ A short exploratory analysis and GIS analysis for each dataset (please see attac
 ##Steps to go through:
 Open Script labeled Data_cleaning.r
 
-This script first will take you through MICS 2011.
+1. This script first will take you through MICS 2011.
 *Data cleaning*
 		* Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
 		* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
