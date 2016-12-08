@@ -27,30 +27,35 @@ A short exploratory analysis and GIS analysis for each dataset (please see attac
 Open Script labeled Data_cleaning.r
 
 1. This script first will take you through MICS 2011.
+
 *Data cleaning*
-		* Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
-		* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
-		* the data is then attached to gps data for further analysis.
-		* Lastly, important variables such as age, microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
+	* Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
+	* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
+	* the data is then attached to gps data for further analysis.
+	* Lastly, important variables such as age, microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
+	
 *Exploratory Analysis*
 	* Before running into prediction modeling it would be useful to determine if key variables that are identified in the literature are strongly related to response variable (Microscopy in this case).
 	* We ran plots to see how Age interacted with RDT and Microscopy
 	* Plots to see how wealth and residence are distributed by microscopy results
 	* Boxplot to see if there is a strong relationship between hemoglobin levels and microscopy and to determine in general if positive microscopy is linked to lower hemoglobin levels	(i.e. severe anaemia).
+	
 *GIS Analysis*
 In GIS analysis the main aim was to plot the point prevalence of MICS 2011 to see the general geographic layout of prevalence across the country in 2011.
 
 The script then goes through the section for DHS 2014:
+
 *Data cleaning*
-		* Importing of all datasets (includes Household members, individual child and gps data).
-		* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside the scope of this project (in press Millar et al. 2017).
-		* the data is then attached to gps data for further analysis.
-		* Lastly, important variables such as microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
+	* Importing of all datasets (includes Household members, individual child and gps data).
+	* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside the scope of this project (in press Millar et al. 2017).
+	* the data is then attached to gps data for further analysis.
+	* Lastly, important variables such as microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
 *Exploratory Analysis*
-		* Before running into prediction modeling it would be useful to determine if key variables that are identified in the literature are strongly related to response variable (Microscopy in this case).
-		* We ran plots to see how Age interacted with RDT and Microscopy
-		* Plots to see how wealth and residence are distributed by microscopy results
-		* Boxplot to see if there is a strong relationship between hemoglobin levels and microscopy and to determine in general if positive microscopy is linked to lower hemoglobin levels	(i.e. severe anaemia).
+	* Before running into prediction modeling it would be useful to determine if key variables that are identified in the literature are strongly related to response variable (Microscopy in this case).
+	* We ran plots to see how Age interacted with RDT and Microscopy
+	* Plots to see how wealth and residence are distributed by microscopy results
+	* Boxplot to see if there is a strong relationship between hemoglobin levels and microscopy and to determine in general if positive microscopy is linked to lower hemoglobin levels	(i.e. severe anaemia).
+	
 *GIS Analysis*
 In GIS analysis the main aim was to plot the point prevalence of DHS 2014 to see the general geographic layout of prevalence across the country in 2014 and compare to trends from 2011.
  
