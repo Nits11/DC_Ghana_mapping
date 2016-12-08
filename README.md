@@ -15,8 +15,10 @@ Given the difficulty with automating the downloading of remote sensed imagery fr
 
 ##What is available:
 Data from MICS and DHS have been imported and stored in data files in an Project file. with file path:
-		**for MICS _(Data/Original/MICS/mics4 datasets)_** 
-		**for DHS _(Data/Original/DHS)_**
+
+	i. **for MICS _(Data/Original/MICS/mics4 datasets)_** 
+	ii. **for DHS _(Data/Original/DHS)_**
+	
       this data includes, household data, child data, laboratory data (for MICS) and gps data. All 	original file names have been kept incase of new versions (new version expected to be released for DHS in January). Data has been cleaned and ready for analysis. As part of data cleaning some exploratory analysis was conducted for MICS and DHS separately (see sections names exploratory analysis and GIS analysis) 
 
 GIS cleaning for MICS 2011: allows for importing raster layers and cropping, re-projecting and aligning (by extent) for data extraction. A final dataset ready for geospatial modeling for MICS 2011 has been made (found in folder named Data/Final_for_analysis).
@@ -24,7 +26,7 @@ GIS cleaning for MICS 2011: allows for importing raster layers and cropping, re-
 A short exploratory analysis and GIS analysis for each dataset (please see attached short report).
 
 ##Steps to go through:
-Open Script labeled Data_cleaning.r
+**Open Script labeled Data_cleaning.r**
 
 1. This script first will take you through MICS 2011.
 
@@ -41,7 +43,7 @@ Open Script labeled Data_cleaning.r
 	* Boxplot to see if there is a strong relationship between hemoglobin levels and microscopy and to determine in general if positive microscopy is linked to lower hemoglobin levels	(i.e. severe anaemia).
 	
 	III. GIS Analysis
-In GIS analysis the main aim was to plot the point prevalence of MICS 2011 to see the general geographic layout of prevalence across the country in 2011.
+	*In GIS analysis the main aim was to plot the point prevalence of MICS 2011 to see the general geographic layout of prevalence across the country in 2011.
 
 2. The script then goes through the section for DHS 2014:
 
@@ -51,21 +53,21 @@ In GIS analysis the main aim was to plot the point prevalence of MICS 2011 to se
 	* the data is then attached to gps data for further analysis.
 	* Lastly, important variables such as microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
 	
-*Exploratory Analysis
+	II. Exploratory Analysis
 	* Before running into prediction modeling it would be useful to determine if key variables that are identified in the literature are strongly related to response variable (Microscopy in this case).
 	* We ran plots to see how Age interacted with RDT and Microscopy
 	* Plots to see how wealth and residence are distributed by microscopy results
 	* Boxplot to see if there is a strong relationship between hemoglobin levels and microscopy and to determine in general if positive microscopy is linked to lower hemoglobin levels	(i.e. severe anaemia).
 	
-*GIS Analysis
-In GIS analysis the main aim was to plot the point prevalence of DHS 2014 to see the general geographic layout of prevalence across the country in 2014 and compare to trends from 2011.
+	III. GIS Analysis
+	*In GIS analysis the main aim was to plot the point prevalence of DHS 2014 to see the general geographic layout of prevalence across the country in 2014 and compare to trends from 2011.
  
 
-Open Script labeled GIS data cleaning.r
+**Open Script labeled GIS data cleaning.r**
 	This script is mainly to clean raster layers, by means of cropping, aligning extents and re-projecting. Note that only 2011 variables have been collected so far. This is owing to a set back with automating the process of downloading MODIS tiles.
-Import all un-processed rasters. These are directly taken from web sources such as MODIS, VIIRS etc.
-Import shape file for Ghana (used for cropping)
-Send all rasters through a for loop that crops, aligns and reprojects them all to the same coordinate system (a template raster is used). The projection is WGS1984 in Long and Lat format. The for loop exports the rasters to a file that stores all cleaned rasters (NOTE: this for loop takes a while, It has been pre-run for you to observe results).
+	*Import all un-processed rasters. These are directly taken from web sources such as MODIS, VIIRS etc.
+	*Import shape file for Ghana (used for cropping)
+	*Send all rasters through a for loop that crops, aligns and reprojects them all to the same coordinate system (a template raster is used). The projection is WGS1984 in Long and Lat format. The for loop exports the rasters to a file that stores all cleaned rasters (NOTE: this for loop takes a while, It has been pre-run for you to observe results).
 the rasters are stacked and plotted to visualize the stack.
-finally the MICS data with gps coordinates are brought in, converted to a shape file and the raster values are extracted for each location.
-For analysis, the data must be standardized, they are scaled and exported as a .csv file to a final folder that contained ready to use .csv files for use in the geopspatial models.
+	*finally the MICS data with gps coordinates are brought in, converted to a shape file and the raster values are extracted for each location.
+	*For analysis, the data must be standardized, they are scaled and exported as a .csv file to a final folder that contained ready to use .csv files for use in the geopspatial models.
