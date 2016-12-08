@@ -29,8 +29,8 @@ Open Script labeled Data_cleaning.r
 1. This script first will take you through MICS 2011.
 
 	I. Data cleaning
-		*Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
-		*Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
+	* Importing of all datasets (includes Household members, laboratory tests, individual child and gps data)
+	* Data is then cleaned to only keep important variables for malaria as defined by a literature review conducted outside 	the scope of this project (in press Millar et al. 2017).
 	* the data is then attached to gps data for further analysis.
 	* Lastly, important variables such as age, microscopy, RDT results and hemoglobin were recoded, this is because the dataset labeled missing data differently or to convert string data to numeric binary 0 or 1.
 	
