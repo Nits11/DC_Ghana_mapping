@@ -1,0 +1,418 @@
+---
+title: "Exploratory Analysis"
+author: "Punam Amratia"
+date: "12/8/2016"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Background
+
+Malaria is endemic and perennial in all parts of Ghana with seasonal variations more pro- nounced in the north. *Plasmodium falciparum* accounts for the majority of infections. The entire population is at risk of malaria infection; however, transmission is markedly less intense in large urban centers compared to rural areas. Between 2000 and 2012, malaria cases seen by health facility outpatient departments increased 75 percent. Though the number of reported malaria cases increased, this is largely due to improved access to healthcare and improved surveillance. Furthermore, over-diagnosis of malaria continues to be a challenge in Ghana due to high rates of presumptive malaria diagnosis based on fever and lack of adher- ence to negative rapid diagnostic test (RDT) results.
+
+Although large efforts since the Roll Back Malaria time (RBM) in 2000 have been initiated by key stakeholders in the country, there is still a large persistence of malaria in the northen regions. Many reporting agency suggest a decline in case fatality rates across the country, however they fail to understand if transmission across the entire country has reduced uniformly or if this is merely a consequence of rapid urbanisation happening across Africa. 
+
+Given the large efforts, it has given rise to the collection of relatively frequent cross-sectional surveys that are considered to be representative of the 5-10% of the population and able to capture Demographic and Health information (including malaria by means of microscopy as well as RDT). These datasets provide a unique opportunity to a) observe unqiue trends between health outcomes and demographic variables of interest b) create predictive models with low uncertainty bounds that can hopefully predict more precisely areas with no data collection and eventually work to build a spatio-temporal map that can project possible trends in malaria on a spatial scale.
+
+This report is part of a larger project that is to build a current risk map of malaria by fusing these large datasets whilst accounting for socio-economics, demographics and environmental factors that may influence the potential for transmission. The next section will be going through simple exploratory analysis conducted on two recent data sets and what the results might imply. These datasets are:
+
+1. Multiple Indicator Cluster Survey (MICS) by UNICEF in 2011
+2. Demographic and Health Survey (DHS) by Macro ICF in 2014
+
+#### Methods
+
+**Data**
+
+*MICS 2011*
+
+The 2011 Multiple Indicator Cluster Survey (MICS) data was used in this study. This is a fourth round of the survey which is conducted every five years to monitor the situation of children and women in Ghana. In this survey about 7,626 children under the age of five years were selected across the ten Regions of Ghana. The subjects were interviewed reference to two years preceding the survey. of these children 4594 children were tested using different laboratory techniques and 4146 were tested for malaria using microscopy and had available data provided by the National Public Health Reference Laboratory. The selection procedure was based on a representative probability sample of households nationwide from a frame of Ghana 2010 Population and Housing Census Enumeration Areas (EA’s). For comparability, the MICS used an internationally standardized sampling of two-stage stratified sample design. At the first stage, a number of EA’s were selected from the regions which were considered as clusters. The households in each region were then selected using systematic sampling with probability proportional to size in the second stage. Of the 12,150 households selected for the sample, 11, 925 households were contacted and duly interviewed. In the households interviewed, 10,963 women aged 15 – 49 years were identified for interview. Data is provided using statistical package SPSS version 17. 
+
+*DHS 2014*
+
+The 2014 GDHS followed a two-stage sample design and was intended to allow estimates of key indicators at the national level as well as for urban and rural areas and each of Ghana’s 10 administrative regions. The first stage involved selecting sample points (clusters) consisting of enumeration areas (EAs) delineated for the 2010 population census. A total of 427 clusters were selected, 216 in urban areas and 211 in rural areas. The second stage involved the systematic sampling of households. A household listing operation was undertaken in all the selected EAs in January-March 2014, and households to be included in the survey were randomly selected from the list. About 30 households were selected from each cluster to constitute the total sample size of 12,831 households. Because of the approximately equal sample sizes in each region, the sample is not self-weighting at the national level, and weighting factors have been added to the data file so that the results will be proportional at the national level. In hald of the selected households children under the age of five years were tested for malaria and anaemia. Blood slides were sent to the National Public Health Reference Laboratory. A total of 2417 children had been tested for malaria.
+
+**Descriptive analysis**
+
+Key variables such as age of child (in months), their wealth status and education level of the head of household were explored here. It has been found that these are common risk factors related to your infection status and a simple decriptive analysis was done to observe distinct patterns.
+
+**GIS description**
+
+A simple point base prevalence map was created for both MICS 2011 and DHS 2014 data sets seperately. This show the point prevalence of malaria by community during the survey to attain an idea of the distribution of malaria across the landscape.
+
+All exploratory anlaysis was conducted in R Statistical Software version 3.3.2.
+
+#### Results
+
+#####MICS 2011
+
+Data cleaning was first conducted to obtain a cleaned version of the dataset.
+
+```{r include=FALSE, cache=FALSE}
+library(foreign)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(ggmap)
+child_dat=read.spss("Data/Original/MICS/mics4 datasets/ch.sav", to.data.frame=TRUE)
+hh_dat=read.spss("Data/Original/MICS/mics4 datasets/hh.sav", to.data.frame=TRUE)
+gps_dat=read.csv("Data/Original/MICS/MICS4EcoZone_PA.csv")
+lab_mal_dat=read.spss("Data/Original/MICS/mics4 datasets/malariaf-13032012merge.sav", to.data.frame=TRUE)
+
+child_dat=child_dat %>%
+  mutate_each(funs(tolower), AM7) %>%
+  mutate(Age_m=12*(UF8Y-AG1Y)+(UF8M-AG1M)) %>%  
+  inner_join(lab_mal_dat) %>%     
+  mutate(Micro=FINALa) %>% 
+  mutate(Micro=replace(Micro,FINALa==2,0)) %>%   
+  mutate(Sev_an=0) %>% 
+  mutate(Sev_an=replace(Sev_an,AM8 < 7,1)) %>%
+  inner_join(hh_dat,by = c("HH1" = "HH1", "HH2" = "HH2")) %>% 
+  filter(!is.na(Micro)) %>%
+  inner_join(gps_dat) %>%  
+  filter(!is.na(Long)) %>% 
+  dplyr::select(HH1,HH2,Day=UF8D,Month=UF8M,Year=UF8Y,Age_year=AG2,Age_months=Age_m,fever=ML1,Health_insurance=HI1,
+         Weight=AN3,Height=AN4, Micro,Sev_an,Hb=AM8,RDT=AM10, Residence=HH6.y, Region=HH7.y, District=HH7A, 
+         IRS=IR1, hhweight, ethnicity=ethnicity.y, H_education=helevel, Wealth_q=windex5.y, Long=Long,Lat=Lat) 
+
+rm("hh_dat")
+rm("lab_mal_dat")
+rm("gps_dat")
+
+child_dat=child_dat %>%
+mutate(Age_months=replace(Age_months,Age_months < 0 & !is.na(Age_months),12*Age_year))  
+hist(child_dat$Age_months)
+
+child_dat$Age_months[which(child_dat$Age_months==0)]=6
+hist(child_dat$Age_months)
+
+child_dat$Hb[which(child_dat$Hb>25)]=NA
+child_dat$fever=as.character(child_dat$fever)
+child_dat$fever[which(child_dat$fever=="DK"|child_dat$fever=="Missing")]=NA
+table(child_dat$fever)
+table(child_dat$Hb)
+
+child_dat$RDT=as.numeric(child_dat$RDT)
+child_dat$RDT[which(child_dat$RDT==4|child_dat$RDT==5)]=0
+child_dat$RDT[which(child_dat$RDT==1|child_dat$RDT==2|child_dat$RDT==3)]=1
+table(child_dat$RDT)
+```
+
+
+**Age vs. Malaria**
+
+```{r fig1, echo=FALSE, warning=FALSE}
+ggplot(child_dat, aes(x=Age_months)) +
+  stat_smooth(aes(y=RDT, colour="RDT"),method = "loess",size=1.5)+
+  stat_smooth(aes(y=Micro, colour="Microscopy"),method = "loess", size=1.5)+
+  xlab("Age in months")+
+  ylab("Probabilty of Infection")+
+  ggtitle("MICS 2011, probability of infection by Age of child (in months)")+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  labs(colour = "")
+
+```
+
+ Figure 1 shows the probability of infection against age. The graph shows two diagnostic methods microscopy (red) and rapid diagnositc tests (blue). RDT's are generally a period prevalence and are expected to result in higher infection probability compared to microscopy which is a point prevalence. It is for this reason that we tend to use microscopy to model prevalence. The graph also shows a general increase in infection  as age increases. 
+ 
+**Wealth by residence and prevalence**
+
+```{r fig2, echo=FALSE, warning=FALSE}
+w=child_dat %>% 
+  select(Wealth_q, Micro, Residence) %>% 
+  mutate(Malaria="Yes") %>% 
+  mutate(Malaria=replace(Malaria,Micro==0,"No"))
+w$Malaria=as.factor(w$Malaria)
+
+
+ggplot(w, aes(x=Wealth_q))+
+  geom_bar(aes(fill=Malaria))+
+  facet_wrap(~ Residence)+
+  ggtitle("MICS 2011, children by residence and wealth")+
+  #Format axes
+  scale_x_continuous(breaks = c(1, 2, 3, 4, 5), labels = c("Poorest", "Poorer", "Middle", "Richer", "Richest")) + 
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Malaria infection", values = c("#fc8d59", "#91bfdb")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  # Legend formatting
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+  
+  #Facets formatting
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+
+```
+
+Figure 2 shows the distribution of children across wealth index and residence. The image is split by number of children that have malaria vs. negative microscopy. The graph shows that there is inqeuality across residence. There are more poor people in rural regions compared to urban areas. There is also larger numbers of positive children in rural in the poorest quintile.
+
+**Wealth and Head of Hosuehold Education**
+
+```{r fig3, echo=FALSE, warning=FALSE}
+ggplot(child_dat, aes(x=Wealth_q))+
+  geom_bar(aes(fill=H_education))+
+  ggtitle("MICS 2011, Education of Head of Household and wealth")+
+  #Format axes
+  scale_x_continuous(breaks = c(1, 2, 3, 4, 5), labels = c("Poorest", "Poorer", "Middle", "Richer", "Richest")) + 
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Highest Education", values = c("darksalmon", "mediumorchid2", "darkturquoise", "chartreuse4")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  # Legend formatting
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+  
+  #Facets formatting
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+
+```
+
+Figure 3 shows the distribution of head oh household highest education level against the wealth quntiles. There are disporportionately more heads of households with no education in the poorest wealth quintile compared to the richest. This could have implications on child's nutrition which could indirectly affect their likelihood for infection.
+
+**Malaria vs. Haemoglobin**
+
+```{r fig4, echo=FALSE, warning=FALSE}
+ggplot(child_dat, aes(x=as.factor(Micro),y=Hb))+
+  geom_boxplot()+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  scale_x_discrete(name="Malaria infection",breaks = c(0,1), labels = c("No", "Yes")) +
+  scale_y_continuous(name = "Hemoglobin level (g/dL)")+
+  ggtitle("MICS 2011, Hemoglobin Leevels by malaria infection status")
+
+```
+
+Figure 4 shows the hemoglobin levels by malaria infection status. Hb levels are lower in children who are positive for malaria but neither group shows a significant levels of severe anemia. i.e. the median is above 7 g/dL
+
+**Point Prevalence map of malaria**
+
+```{r map1, echo=FALSE, warning=FALSE}
+MICS_mal=child_dat %>% 
+  group_by(HH1) %>% 
+  summarise(Malaria=mean(Micro)*100, RDT=mean(RDT)*100, Long=mean(Long), Lat=mean(Lat))
+
+world_map <- map_data("world")
+Ghana <- subset(world_map, world_map$region=="Ghana")
+
+ggplot() + coord_fixed() +
+  xlab("") + ylab("")+ 
+
+  geom_polygon(data=Ghana, aes(x=long, y=lat, group=group), 
+                                     colour="black", fill="white")+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+       panel.background = element_rect(fill = 'white', colour = 'white'), 
+       axis.line = element_line(colour = "white"), legend.position="left",
+       axis.ticks=element_blank(), axis.text.x=element_blank(),
+       axis.text.y=element_blank())+
+
+  geom_point(data=MICS_mal, 
+             aes(x=Long, y=Lat, colour=Malaria, size=Malaria), alpha=0.4)+ 
+  scale_colour_gradient(name = "Malaria Prevalence (%)",high = "red", low = "Yellow")+
+    scale_size_continuous(name = "Malaria Prevalence (%)", range = c(1,5))+
+  guides(color=guide_legend(), size = guide_legend())+
+  ggtitle("MICS 2011, Malaria Prevalence Point map")
+```
+
+Figure 5 shows the point prevalence of malaria durng the MICS 2011. The points represent 728 households during the survey. Although larger number of samples were collected in the south of the country it shows there is lower prevalence in the south vs. the north of the country. The points are also more scarce in the north which could be representative of rural.
+
+#####DHS 2014
+
+Data cleaning was first conducted to obtain a cleaned version of the dataset.
+
+
+```{r include=FALSE, cache=FALSE}
+library(foreign)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(ggmap)
+DHS_hh <- read.dta("Data/Original/DHS/ghpr71dt/GHPR71FL.DTA") 
+DHS_ch <- read.dta("Data/Original/DHS/ghkr71dt/GHkR71FL.DTA")
+
+DHS_ch$ID <- with(DHS_ch, paste0(v001, v002, b16)) 
+DHS_hh$ID <- with(DHS_hh, paste0(hv001, hv002, hvidx))
+
+DHS_gps=read.csv("Data/Original/DHS/DHS_gps.csv")
+
+DHS_gps=DHS_gps %>% 
+  dplyr::select(HH1=DHSCLUST, Long=LONGNUM, Lat=LATNUM)
+
+DHS <- DHS_ch %>% 
+  inner_join(DHS_hh, by="ID") %>%
+  mutate(Sev_an=0) %>% 
+  mutate(Sev_an=replace(Sev_an,hw53<70,1)) %>%
+  mutate(Age_year=v007-v010) %>% 
+  dplyr::select(HH1=v001, HH2=v002, Day=v016, Month=v006, Year=v007, Age_year,Age_months=hw1, fever=h22,
+         Health_Insurance=v481, Weight=hw2, Height=hw3, Micro=shmala, Sev_an, Hb=hw53, RDT=hml35,
+         Residence=v025, Region=v024, District=sdist, IRS=hv235, hhweight=v005, ethnicity=v131, 
+         H_education=v106, Wealth_q=v190) %>% 
+  filter(!is.na(Micro)) 
+
+
+DHS=merge(DHS, DHS_gps, by="HH1")
+
+names(DHS)
+
+DHS$Micro <- ifelse(DHS$Micro=="negative",0,ifelse(DHS$Micro=="positive",1,NA))
+DHS$RDT <- ifelse(DHS$RDT=="negative",0,ifelse(DHS$RDT=="positive",1,NA))
+table(DHS$Micro, useNA="ifany")
+table(DHS$RDT, useNA="ifany")  
+
+DHS=filter(DHS,!is.na(Micro))
+
+DHS$Hb[which(DHS$Hb>250)]=NA
+DHS$Hb=DHS$Hb/10
+hist(DHS$Hb)
+```
+
+
+**Age vs. Malaria**
+
+```{r fig1_1, echo=FALSE, warning=FALSE}
+ggplot(DHS, aes(x=Age_months)) +
+  stat_smooth(aes(y=RDT, colour="RDT"),method = "loess",size=1.5)+
+  stat_smooth(aes(y=Micro, colour="Microscopy"),method = "loess", size=1.5)+
+  xlab("Age in months")+
+  ylab("Probabilty of Infection")+
+  ggtitle("DHS 2014, probability of infection by Age of child (in months)")+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  labs(colour = "")
+
+```
+
+Figure 6 shows the probability of infection against age. The graph shows two diagnostic methods microscopy (red) and rapid diagnositc tests (blue). RDT's are generally a period prevalence and are expected to result in higher infection probability compared to microscopy which is a point prevalence. It is for this reason that we tend to use microscopy to model prevalence. The graph also shows a general increase in infection  as age increases. 
+
+**Wealth by residence and prevalence**
+
+```{r include=FALSE, cache=FALSE}
+w=DHS %>% 
+  dplyr::select(Wealth_q, Micro, Residence) %>% 
+  mutate(Malaria="Yes") %>% 
+  mutate(Malaria=replace(Malaria,Micro==0,"No"))
+w$Malaria=as.factor(w$Malaria)
+w$Wealth_q=as.factor(w$Wealth_q)
+w$Residence=as.factor(w$Residence)
+str(w)
+```
+
+```{r fig2_1, echo=FALSE, warning=FALSE, comment=FALSE}
+ggplot(w, aes(x=Wealth_q))+
+  geom_bar(aes(fill=Malaria))+
+  facet_wrap(~ Residence)+
+  ggtitle("DHS 2014, children by residence and wealth")+
+ 
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Malaria infection", values = c("#fc8d59", "#91bfdb")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+```
+
+Figure 7 shows the distribution of children across wealth index and residence. The image is split by number of children that have malaria vs. negative microscopy. The graph shows that there is inqeuality across residence. There are more poor people in rural regions compared to urban areas. There is also larger numbers of positive children in rural in the poorest quintile.
+
+**Wealth and Head of Hosuehold Education**
+
+```{r fig3_1, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(DHS, aes(x=Wealth_q))+
+  geom_bar(aes(fill=H_education))+
+  ggtitle("DHS 2014, Education of Head of Household and wealth")+
+  scale_y_continuous(name = "Number of Children")+
+  scale_fill_manual(name = "Highest Education", values = c("darksalmon", "mediumorchid2", "darkturquoise", "chartreuse4")) +
+  theme_minimal(base_size = 12, base_family = "Arial")+
+  theme(axis.text.x = element_text(size = 8, angle = 45), 
+        axis.text.y = element_text(size = 8),
+        axis.title.y = element_text(size = 8),
+        axis.title.x = element_blank()) +
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        legend.position = "top", 
+        legend.direction = "horizontal") +
+  
+   theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10),
+        panel.margin = unit(1, "lines"))
+```
+
+Figure 8 shows the distribution of head oh household highest education level against the wealth quntiles. There are disporportionately more heads of households with no education in the poorest wealth quintile compared to the richest. This could have implications on child's nutrition which could indirectly affect their likelihood for infection.
+
+**Malaria vs. Haemoglobin**
+
+```{r fig4_1, echo=FALSE, warning=FALSE}
+ggplot(DHS, aes(x=as.factor(Micro),y=Hb))+
+  geom_boxplot()+
+  theme(panel.background= element_blank(), panel.grid.minor = element_line(colour = "lightgrey"),panel.border = element_blank(),
+        axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
+        axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"))+
+  scale_x_discrete(name="Malaria infection",breaks = c(0,1), labels = c("No", "Yes")) +
+  scale_y_continuous(name = "Hemoglobin level (g/dL)")+
+  ggtitle("DHS 2014, Hemoglobin Leevels by malaria infection status")
+
+```
+
+Figure 9 shows the hemoglobin levels by malaria infection status. Hb levels are lower in children who are positive for malaria but neither group shows a significant levels of severe anemia. i.e. the median is above 7 g/dL
+
+**Point Prevalence map of malaria**
+
+```{r map1_1, echo=FALSE, warning=FALSE}
+DHS_mal=DHS %>% 
+  group_by(HH1) %>% 
+  summarise(Malaria=mean(Micro)*100, Long=mean(Long), Lat=mean(Lat)) %>% 
+  filter(Long!=0.000000)
+
+world_map <- map_data("world")
+Ghana <- subset(world_map, world_map$region=="Ghana")
+
+ggplot() + coord_fixed() +
+  xlab("") + ylab("")+ 
+  
+  geom_polygon(data=Ghana, aes(x=long, y=lat, group=group), 
+               colour="black", fill="white")+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+        panel.background = element_rect(fill = 'white', colour = 'white'), 
+        axis.line = element_line(colour = "white"), legend.position="left",
+        axis.ticks=element_blank(), axis.text.x=element_blank(),
+        axis.text.y=element_blank())+
+  geom_point(data=DHS_mal, 
+             aes(x=Long, y=Lat, colour=Malaria, size=Malaria), alpha=0.4)+ 
+  scale_colour_gradient(name = "Malaria Prevalence (%)",high = "red", low = "Yellow")+
+  scale_size_continuous(name = "Malaria Prevalence (%)", range = c(1,5))+
+  guides(color=guide_legend(), size = guide_legend())+
+  ggtitle("DHS 2014, Malaria Prevalence Point map")
+
+```
+
+Figure 10 shows the point prevalence of malaria durng the DHS 2014. The points represent 427 cluster during the survey. Although larger number of samples were collected in the south of the country it shows there is lower prevalence in the south vs. the north of the country. The points are also more scarce in the north which could be representative of rural. The prevalence also compared to MICS 2011 has reduced significantly across the entire country, with less higher endemic prevalences seen (> 50%)
