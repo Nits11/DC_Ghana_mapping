@@ -16,6 +16,12 @@ library(stringr)
 library(ggplot2)
 library(ggmap)
  
+##unzip data file
+#unzip the data (loop allows to reduce unzipping for computation time)
+if (!file.exists('Data')){
+  unzip("Data.zip")
+}
+
 #######################################################################################
 ########################          MICS 2011          ##################################
 #######################################################################################
