@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Understanding the social and environmental drivers of malaria – a current risk map for Ghana.
 ##Project proposal
 Although there have been large efforts to map the malaria risk and its distribution spatially and temporally globally (Gething et al., 2011) they are built from a historical framework of spatio-temporal data, that creates less accurate estimates of the current situation of disease risk. Since the birth of Roll Back Malaria in 2000, surveillance of malaria has been increased giving rise to several large datasets such as the Demographic Health Surveys (DHS) and in Malaria Indicator Surveys (MIS). There are currently no published maps for Ghana’s current malaria situation even though in 2011, UNICEF in collaboration with the National Malaria Control Programme was able to implement a national Malaria Indicator Cluster Survey (MICS), which includes high resolution data on key malaria indicators including prevalence and incidence(PMI, 2015).  A current risk map would help guide a more targetted approach to malaria control for the National Malaria Control Program and allow optimised resource allocations.
