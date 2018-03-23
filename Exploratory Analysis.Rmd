@@ -48,7 +48,7 @@ All exploratory anlaysis was conducted in R Statistical Software version 3.3.2.
 
 #### Results
 
-#####MICS 2011
+##### MICS 2011
 
 Data cleaning was first conducted to obtain a cleaned version of the dataset.
 
@@ -236,7 +236,7 @@ ggplot() + coord_fixed() +
 
 Figure 5 shows the point prevalence of malaria durng the MICS 2011. The points represent 728 households during the survey. Although larger number of samples were collected in the south of the country it shows there is lower prevalence in the south vs. the north of the country. The points are also more scarce in the north which could be representative of rural.
 
-#####DHS 2014
+##### DHS 2014
 
 Data cleaning was first conducted to obtain a cleaned version of the dataset.
 
